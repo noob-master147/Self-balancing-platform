@@ -20,16 +20,17 @@ void setup() {
 }
 
 void loop() {
-  if(Serial.available()>0)
-  x = Serial.read();
-  y = Serial.read();
+  if(Serial.available()>0){
+    x = Serial.read();
+    y = Serial.read();
   
 
-  int dx = map(x,-1*len,len,0,180);
-  int dy = map(y, -1*len,len,0,180);
+    int dx = map(x,-1*len,len,0,180);
+    int dy = map(y, -1*len,len,0,180);
 
-  sx.write(dx);
-  sy.write(dy);
-  delay(5);
-
+    sx.write(dx);
+    sy.write(dy);
+    Serial.println(dx,dy);
+    delay(5);
+  }
 }
