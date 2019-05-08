@@ -21,9 +21,9 @@ void setup() {
 
 void loop() {
   if(Serial.available()>0)
-  int serialdata = Serial.read();
-  x = serialdata;
-  y = serialdata;
+  x = Serial.read();
+  y = Serial.read();
+  
 
   int dx = map(x,-1*len,len,0,180);
   int dy = map(y, -1*len,len,0,180);
