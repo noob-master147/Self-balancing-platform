@@ -3,10 +3,9 @@
 Servo sx; //servo for x axis roll
 Servo sy; //servo for y axis roll
 
-float x=0;
-float y=0;
+
 int len=0;
-int serialdata=0;
+
 
 void setup() {
   Serial.begin(9600);
@@ -20,17 +19,14 @@ void setup() {
 }
 
 void loop() {
-  if(Serial.available()>0){
-    x = Serial.read();
-    y = Serial.read();
+  while(Serial.available()==0)
+  {}
+    String a=Serial.readString();
+    int b = a.toInt();
+    Serial.println(b+12);
+
+    //int dx = map(x,-1*len,len,0,180);
+    //int dy = map(y, -1*len,len,0,180);
+
   
-
-    int dx = map(x,-1*len,len,0,180);
-    int dy = map(y, -1*len,len,0,180);
-
-    sx.write(dx);
-    sy.write(dy);
-    Serial.println(dx,dy);
-    delay(5);
-  }
 }
