@@ -21,11 +21,17 @@ void loop() {
   int x = a/10;
   int y = a%10;
   
-  int dx = map(x,0,9,0,180);
-  int dy = map(y,0,9,0,180);
-    sx.write(dx);
+  int dx = map(x,0,9,30,150);
+  int dy = map(y,0,9,30,150);
+
+  dx = dx + 5 - dx%5;
+  dy = dy + 5 - dy%5;
+  sx.write(dx);
+  delay(5);
   sy.write(dy);
-  delay(10);
+  delay(5);
+  Serial.println(dx);
+  Serial.println(dy);
 
   
 }
