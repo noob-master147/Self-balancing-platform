@@ -1,41 +1,40 @@
-double sensed_output, setpoint, control_signal;
-double kp, ki, kd;
-int T =50;
-unsigned long last_time;
-double total_error, last_error;
+#include <PID_v1.h>
 
+//Define Variables we'll be connecting to
+double Setpoint, Input, Output;
 
+//Define the aggressive and conservative Tuning Parameters
+double aggKp=4, aggKi=0.2, aggKd=1;
+double consKp=1, consKi=0.05, consKd=0.25;
 
-void setup() {
-  // put your setup code here, to run once:
+//Specify the links and initial tuning parameters
+PID myPID(&Input, &Output, &Setpoint, consKp, consKi, consKd, DIRECT);
 
-}
-
-void loop() {
-  PID_Control();
-
-}
-
-void PID_Control()
+void setup()
 {
+  //initialize the variables we're linked to
+  Input = analogRead(0);
+  Setpoint = 100;
 
-  unsigned long current_time =millis();
-  int delta_time = current_time - last_time;
-  
-  if(delta_time>T)
-  {
+  //turn the PID on
+  myPID.SetMode(AUTOMATIC);
+}
 
-    double error = setpoint - sensed_output;
-    total_error +=error;
-    if(total_error>=255) total_error = 255;
-    else if(total_error<=0) total_error = 0;
-    double delta_error = error -last_error;
+void loop()
+{
+  Input = analogRead(0);
 
-    control_signal = kp*error +ki*T*total_error +(kd/T)*delta_error;
-    if(total_error>=255) total_error = 255;
-    else if(total_error<=0) total_error = 0;
-    
-    last_error = error;
-    last_time = current_time;
+  double gap = abs(Setpoint-Input); //distance away from setpoint
+  if(gap<10)
+  {  //we're close to setpoint, use conservative tuning parameters
+    myPID.SetTunings(consKp, consKi, consKd);
   }
+  else
+  {
+     //we're far from setpoint, use aggressive tuning parameters
+     myPID.SetTunings(aggKp, aggKi, aggKd);
+  }
+
+  myPID.Compute();
+  analogWrite(3,Output);
 }
