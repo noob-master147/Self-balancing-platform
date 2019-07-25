@@ -1,38 +1,46 @@
 #include <Wire.h>
 #include <Servo.h>
 
+const int numReadings = 5;
+int readings[numReadings];
+int readIndex = 0;                  // the index of the current reading
+int readtotal = 0;                  // the running total
+int readaverage = 0;
 
-const int trigPin = 2;
-const int echoPin = 3;
+const int trigPin = 5;
+const int echoPin = 7;
 long duration;
 float distance = 0.0;
 
 int Analog_in = A0;
-Servo myservo;  // create servo object to control a servo, later attatched to D9
+Servo myservo;  
 
 
-
-float elapsedTime, time, timePrev;        //Variables for time control
+float elapsedTime, time, timePrev;        
 float distance_previous_error, distance_error;
-int period = 50;  //Refresh rate period of the loop is 50ms
+int period = 50;                                                                   //Refresh rate
 
-//ye kp, ki, kd constant set hoten hai. isko change kar kar ke dekhna
-float kp=8; //Mine was 8
-float ki=0.2; //Mine was 0.2
-float kd=3100; //Mine was 3100
-float distance_setpoint = 15;           //Should be the distance from sensor to the middle of the bar in mm
+
+float kp=8; 
+float ki=0.2; 
+float kd=3100; 
+float distance_setpoint = 17;                                                      //distance from sensor to the middle of the bar
 float PID_p, PID_i, PID_d, PID_total;
 
 
 
 void setup() {
-  //analogReference(EXTERNAL);
+ 
   Serial.begin(9600);  
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
   myservo.attach(9); 
-  myservo.write(125); 
   pinMode(Analog_in,INPUT);  
+  for (int thisReading = 0; thisReading < numReadings; thisReading++) {
+    readings[thisReading] = 0;
+  }
+  myservo.write(170);
+  delay(5000);
   time = millis();
 }
 
@@ -40,7 +48,7 @@ void loop() {
   if (millis() > time+period)
   {
     time = millis();    
-    distance = get_dist();   
+    distance = constrain(get_dist(),5,30);   
     distance_error = distance_setpoint - distance;   
     PID_p = kp * distance_error;
     float dist_diference = distance_error - distance_previous_error;     
@@ -61,7 +69,7 @@ void loop() {
     if(PID_total < 20){PID_total = 20;}
     if(PID_total > 160) {PID_total = 160; } 
   
-    myservo.write(PID_total+30);  
+    myservo.write(PID_total + 30);  
     distance_previous_error = distance_error;
   }
 }
@@ -71,13 +79,24 @@ void loop() {
 
 float get_dist()
 {
+  readtotal = readtotal - readings[readIndex];
+  
   digitalWrite(trigPin, LOW);
   delayMicroseconds(10);
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
   float duration = pulseIn(echoPin, HIGH);
-  float distance= duration*0.034/2;
-  Serial.print("Distance: "); 
-  return(distance);
+  readings[readIndex] = duration*0.034/2;
+  readtotal = readtotal + readings[readIndex];
+  readIndex = readIndex + 1;
+
+  if (readIndex >= numReadings) {
+    readIndex = 0;
+  }
+
+  readaverage = readtotal / numReadings;
+  delay(1);        
+  Serial.println(readaverage); 
+  return(readaverage);
 }
