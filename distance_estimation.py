@@ -35,11 +35,13 @@ while True:
         centre_x = (orange.shape[1])/2
 
         dist_cv = (((cx-centre_x)**2 - (cy-centre_y)**2)**(0.5))*0.026458333
+	print(dist_cv)#the distance of the ball from centre wrt pixels
 
         #The actual distance of the ball from the centre
         dist_platform = (dist_cv*(Area_cv/Area_platform))
         print(dist_platform)
-
+	print(cx, cy)#the centre of the ball
+	
         key = cv2.waitKey(1)
         #space to exit
         if key == 32:
